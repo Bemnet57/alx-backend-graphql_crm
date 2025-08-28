@@ -7,6 +7,7 @@ from .models import Customer, Product, Order
 from django.core.exceptions import ValidationError
 from graphene_django.types import DjangoObjectType
 from .models import Product
+from crm.models import Product
 
 class CustomerType(DjangoObjectType):
     class Meta:
