@@ -5,6 +5,9 @@ from crm.models import Customer, Product, Order
 from crm.filters import CustomerFilter, ProductFilter, OrderFilter
 from .models import Customer, Product, Order
 from django.core.exceptions import ValidationError
+from graphene_django.types import DjangoObjectType
+from .models import Product
+
 class CustomerType(DjangoObjectType):
     class Meta:
         model = Customer
@@ -139,3 +142,36 @@ class Query(graphene.ObjectType):
         if order_by:
             qs = qs.order_by(*order_by)
         return qs
+    
+#added for automation assignment
+class ProductType(DjangoObjectType):
+    class Meta:
+        model = Product
+        fields = ("id", "name", "stock")
+
+class UpdateLowStockProducts(graphene.Mutation):
+    class Arguments:
+        pass  # no input args needed
+
+    success = graphene.Boolean()
+    message = graphene.String()
+    updated_products = graphene.List(ProductType)
+
+    def mutate(self, info):
+        low_stock_products = Product.objects.filter(stock__lt=10)
+        updated = []
+
+        for product in low_stock_products:
+            product.stock += 10
+            product.save()
+            updated.append(product)
+
+        return UpdateLowStockProducts(
+            success=True,
+            message=f"{len(updated)} products updated",
+            updated_products=updated
+        )
+
+# Add to main Mutation class
+class Mutation(graphene.ObjectType):
+    update_low_stock_products = UpdateLowStockProducts.Field()

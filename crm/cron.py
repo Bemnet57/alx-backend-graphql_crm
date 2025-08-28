@@ -1,4 +1,38 @@
 import datetime
+import requests
+import datetime
+
+def update_low_stock():
+    url = "http://localhost:8000/graphql/"  # adjust if different
+    query = """
+    mutation {
+        updateLowStockProducts {
+            success
+            message
+            updatedProducts {
+                id
+                name
+                stock
+            }
+        }
+    }
+    """
+
+    try:
+        response = requests.post(url, json={"query": query})
+        data = response.json()
+
+        with open("/tmp/low_stock_updates_log.txt", "a") as log_file:
+            log_file.write(
+                f"[{datetime.datetime.now()}] Response: {data}\n"
+            )
+
+    except Exception as e:
+        with open("/tmp/low_stock_updates_log.txt", "a") as log_file:
+            log_file.write(
+                f"[{datetime.datetime.now()}] ERROR: {str(e)}\n"
+            )
+
 
 def log_crm_heartbeat():
     timestamp = datetime.datetime.now().strftime("%d/%m/%Y-%H:%M:%S")
@@ -26,3 +60,37 @@ def log_crm_heartbeat():
         # Fail silently to avoid breaking cron job
         with open("/tmp/crm_heartbeat_log.txt", "a") as f:
             f.write(f"{timestamp} GraphQL check failed: {e}\n")
+
+
+
+def update_low_stock():
+    url = "http://localhost:8000/graphql/"  # adjust if different
+    query = """
+    mutation {
+        updateLowStockProducts {
+            success
+            message
+            updatedProducts {
+                id
+                name
+                stock
+            }
+        }
+    }
+    """
+
+    try:
+        response = requests.post(url, json={"query": query})
+        data = response.json()
+
+        with open("/tmp/low_stock_updates_log.txt", "a") as log_file:
+            log_file.write(
+                f"[{datetime.datetime.now()}] Response: {data}\n"
+            )
+
+    except Exception as e:
+        with open("/tmp/low_stock_updates_log.txt", "a") as log_file:
+            log_file.write(
+                f"[{datetime.datetime.now()}] ERROR: {str(e)}\n"
+            )
+
